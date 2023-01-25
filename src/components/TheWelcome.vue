@@ -4,10 +4,42 @@
       <span class="label">Welcome</span>
     </template>
     <hr class="neo-line">
+    <div>User {{ JSON.stringify(data) }}</div>
+    <div id="loginGoogleButton" v-show="googleCredential === '' "></div>
   </WelcomeItem>
 </template>
 <script setup lang="ts">
+import {ref} from "vue";
 import WelcomeItem from "./WelcomeItem.vue";
+import {useRoute} from "vue-router";
+import {UserRepository} from "@/user/user.repository";
+
+let data = ref({});
+const error = ref(null);
+const route = useRoute();
+let googleCredential = ref("");
+
+async function getUser(token: string) {
+  const result = UserRepository.getUser(token);
+  data.value = result || {};
+}
+
+function handleGoogleLoginResponse(response: any) {
+  googleCredential.value = response.credential;
+  getUser(googleCredential.value);
+}
+
+window.onload = () => {
+  (window as any).google.accounts.id.initialize({
+    client_id:
+    import.meta.env.VITE_TTRPG_CLIENT_ID,
+    callback: handleGoogleLoginResponse,
+  });
+  (window as any).google.accounts.id.renderButton(
+      document.getElementById("loginGoogleButton"),
+      {theme: "filled_black", size: "large", shape: "circle"}
+  );
+};
 </script>
 <style scoped lang="stylus">
 .label {
