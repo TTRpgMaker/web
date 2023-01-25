@@ -16,11 +16,10 @@ import {UserRepository} from "@/user/user.repository";
 
 let data = ref({});
 const error = ref(null);
-const route = useRoute();
 let googleCredential = ref("");
 
 async function getUser(token: string) {
-  const result = UserRepository.getUser(token);
+  const result = await UserRepository.getUser(token);
   data.value = result || {};
 }
 
